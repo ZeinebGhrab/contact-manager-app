@@ -1,0 +1,8 @@
+<resources>
+    <style name="Base.Theme.MyApplication" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="colorPrimary">#8BC34A</item>
+        <item name="colorPrimaryDark">#689F38</item>
+        <item name="colorAccent">#E91E63</item>
+    </style>
+    <style name="Theme.MyApplication" parent="Base.Theme.MyApplication"/>
+</resources>
