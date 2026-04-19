@@ -83,8 +83,9 @@ com.example.contactlist
 
 ## 👩‍💻 Author
 
-Zeineb Ghrab  
+**Zeineb Ghrab**  
 Data & Decisional Systems Engineer Student
+ENET'Com Sfax  
 
 ---
 
