@@ -46,6 +46,7 @@ Data Layer (DAO)
 
 ## 📂 Project Structure
 
+```
 com.example.contactlist
 
 ├── adapter/        # RecyclerView Adapter
@@ -54,6 +55,7 @@ com.example.contactlist
 ├── service/        # Business logic
 └── MainActivity    # UI layer
 
+```
 ---
 
 ## 📸 Screenshots
