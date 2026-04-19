@@ -18,7 +18,7 @@ A simple and well-structured Android application for managing contacts, designed
 ## 🏗️ Architecture
 
 This project follows a **3-layer architecture**:
-
+```
 Presentation (UI)
    └── MainActivity, RecyclerView, Adapter
 
@@ -27,6 +27,7 @@ Business Logic (Service)
 
 Data Layer (DAO)
    └── ContactDAO, SQLite Database
+```
 
 ### 🔹 Key Principles
 - Separation of Concerns
@@ -58,17 +59,12 @@ com.example.contactlist
 ```
 ---
 
-## 📸 Screenshots
-
-(Add your app screenshots here)
-
----
-
 ## ⚙️ Installation
 
 1. Clone the repository:
+```
    git clone https://github.com/ZeinebGhrab/contact-manager-app.git
-
+```
 2. Open the project in Android Studio
 
 3. Run the app on an emulator or physical device
