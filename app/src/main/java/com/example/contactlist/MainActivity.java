@@ -1,12 +1,16 @@
 package com.example.contactlist;
 
-import android.app.AlertDialog;
 import android.os.Bundle;
+import android.app.AlertDialog;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.SearchView;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,7 +18,6 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.contactlist.R;
 import com.example.contactlist.adapter.ContactAdapter;
 import com.example.contactlist.model.Contact;
 import com.example.contactlist.service.ContactService;
@@ -29,21 +32,42 @@ public class MainActivity extends AppCompatActivity
     private ContactAdapter adapter;
     private List<Contact>  contacts;
 
+    // Vues toolbar / recherche
+    private Toolbar      toolbar;
+    private LinearLayout searchBar;
+    private EditText     etSearch;
+    private boolean      enModeRecherche = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // ✅ FIX 1 : Lier la Toolbar custom → titre "Contact List" s'affiche
-        // ✅ FIX 2 : Le menu (SearchView) sera gonflé dans cette Toolbar
-        Toolbar toolbar = findViewById(R.id.toolbar);
+        // Toolbar normale
+        toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        // Initialisation couche métier
+        // Barre de recherche (cachée par défaut)
+        searchBar  = findViewById(R.id.searchBar);
+        etSearch   = findViewById(R.id.etSearch);
+        ImageButton btnBack = findViewById(R.id.btnBackSearch);
+
+        // Flèche retour → fermer la recherche
+        btnBack.setOnClickListener(v -> fermerRecherche());
+
+        // Filtrage en temps réel
+        etSearch.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int st, int c, int a) {}
+            @Override public void afterTextChanged(Editable s) {}
+            @Override public void onTextChanged(CharSequence s, int st, int b, int c) {
+                contacts = service.rechercherContacts(s.toString());
+                adapter.setListe(contacts);
+            }
+        });
+
+        // Couche métier
         service = new ContactService(this);
         service.initialiserDonneesDemo();
-
-        // Chargement données
         contacts = service.getTousLesContacts();
 
         // RecyclerView
@@ -57,34 +81,55 @@ public class MainActivity extends AppCompatActivity
         fab.setOnClickListener(v -> afficherDialogueAjouter());
     }
 
-    // ── Menu SearchView ──────────────────────────────────────
+    // ── Menu : icône loupe ───────────────────────────────────
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
-
-        MenuItem searchItem = menu.findItem(R.id.action_search);
-
-        // ✅ FIX 3 : Utiliser androidx.appcompat.widget.SearchView
-        //    et non android.widget.SearchView (compatible avec Toolbar)
-        androidx.appcompat.widget.SearchView searchView =
-                (androidx.appcompat.widget.SearchView) searchItem.getActionView();
-
-        searchView.setQueryHint("Rechercher un contact...");
-
-        searchView.setOnQueryTextListener(
-                new androidx.appcompat.widget.SearchView.OnQueryTextListener() {
-                    @Override
-                    public boolean onQueryTextSubmit(String q) { return false; }
-
-                    @Override
-                    public boolean onQueryTextChange(String q) {
-                        contacts = service.rechercherContacts(q);
-                        adapter.setListe(contacts);
-                        return true;
-                    }
-                });
-
         return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_search) {
+            ouvrirRecherche();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    // ── Basculer en mode recherche ───────────────────────────
+    private void ouvrirRecherche() {
+        enModeRecherche = true;
+        toolbar.setVisibility(View.GONE);
+        searchBar.setVisibility(View.VISIBLE);
+        etSearch.requestFocus();
+        // Ouvrir le clavier automatiquement
+        InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+        if (imm != null) imm.showSoftInput(etSearch, InputMethodManager.SHOW_IMPLICIT);
+    }
+
+    // ── Revenir au mode normal ───────────────────────────────
+    private void fermerRecherche() {
+        enModeRecherche = false;
+        etSearch.setText("");
+        searchBar.setVisibility(View.GONE);
+        toolbar.setVisibility(View.VISIBLE);
+        // Fermer le clavier
+        InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+        if (imm != null) imm.hideSoftInputFromWindow(etSearch.getWindowToken(), 0);
+        // Recharger tous les contacts
+        contacts = service.getTousLesContacts();
+        adapter.setListe(contacts);
+    }
+
+    // ── Bouton Back système ──────────────────────────────────
+    @Override
+    public void onBackPressed() {
+        if (enModeRecherche) {
+            fermerRecherche();
+        } else {
+            super.onBackPressed();
+        }
     }
 
     // ── Dialogue Ajouter ─────────────────────────────────────
@@ -104,8 +149,7 @@ public class MainActivity extends AppCompatActivity
                         contacts.add(c);
                         adapter.notifyItemInserted(contacts.size() - 1);
                     } catch (Exception e) {
-                        Toast.makeText(this, e.getMessage(),
-                                Toast.LENGTH_LONG).show();
+                        Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
                     }
                 })
                 .setNegativeButton("Annuler", null)
@@ -133,8 +177,7 @@ public class MainActivity extends AppCompatActivity
                         contacts.set(position, modifie);
                         adapter.notifyItemChanged(position);
                     } catch (Exception e) {
-                        Toast.makeText(this, e.getMessage(),
-                                Toast.LENGTH_LONG).show();
+                        Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
                     }
                 })
                 .setNegativeButton("Annuler", null)
@@ -153,8 +196,7 @@ public class MainActivity extends AppCompatActivity
                         contacts.remove(position);
                         adapter.notifyItemRemoved(position);
                     } catch (Exception e) {
-                        Toast.makeText(this, e.getMessage(),
-                                Toast.LENGTH_LONG).show();
+                        Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
                     }
                 })
                 .setNegativeButton("Non", null)

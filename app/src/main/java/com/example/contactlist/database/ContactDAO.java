@@ -88,6 +88,32 @@ public class ContactDAO {
         return count;
     }
 
+    // Vérifie si un nom existe déjà (en ignorant la casse), en excluant un id donné (pour la modification)
+    public boolean existeNom(String nom, int excludeId) {
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        Cursor c = db.rawQuery(
+                "SELECT COUNT(*) FROM contacts WHERE LOWER(nom)=LOWER(?) AND id!=?",
+                new String[]{nom, String.valueOf(excludeId)});
+        boolean found = false;
+        if (c.moveToFirst()) found = c.getInt(0) > 0;
+        c.close();
+        db.close();
+        return found;
+    }
+
+    // Vérifie si un numéro de téléphone existe déjà, en excluant un id donné (pour la modification)
+    public boolean existeTelephone(String telephone, int excludeId) {
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        Cursor c = db.rawQuery(
+                "SELECT COUNT(*) FROM contacts WHERE telephone=? AND id!=?",
+                new String[]{telephone, String.valueOf(excludeId)});
+        boolean found = false;
+        if (c.moveToFirst()) found = c.getInt(0) > 0;
+        c.close();
+        db.close();
+        return found;
+    }
+
     // Méthode utilitaire privée — évite la répétition
     private Contact cursorToContact(Cursor cursor) {
         return new Contact(

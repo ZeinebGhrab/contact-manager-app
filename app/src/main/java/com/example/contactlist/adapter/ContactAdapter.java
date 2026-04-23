@@ -14,7 +14,7 @@ import java.util.List;
 
 public class ContactAdapter extends RecyclerView.Adapter<ContactViewHolder> {
 
-    // Interface bonne pratique (cours slide 173)
+    // Interface
     public interface OnContactListener {
         void onModifier(int position);
         void onSupprimer(int position);

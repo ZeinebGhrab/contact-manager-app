@@ -9,6 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
+        <!-- Mode normal : titre + icône loupe -->
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
@@ -16,6 +17,43 @@
             android:background="#8BC34A"
             android:title="Contact List"
             android:titleTextColor="@android:color/white"/>
+
+        <!-- Mode recherche : flèche retour + EditText (caché par défaut) -->
+        <LinearLayout
+            android:id="@+id/searchBar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="#8BC34A"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="4dp"
+            android:paddingEnd="8dp"
+            android:visibility="gone">
+
+            <ImageButton
+                android:id="@+id/btnBackSearch"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Retour"
+                android:src="@drawable/ic_arrow_back"
+                android:tint="@android:color/white"/>
+
+            <EditText
+                android:id="@+id/etSearch"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:hint="Rechercher un contact..."
+                android:imeOptions="actionSearch"
+                android:inputType="text"
+                android:maxLines="1"
+                android:textColor="@android:color/white"
+                android:textColorHint="#CCFFFFFF"
+                android:textSize="16sp"/>
+
+        </LinearLayout>
 
     </com.google.android.material.appbar.AppBarLayout>
 
